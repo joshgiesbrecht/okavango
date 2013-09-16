@@ -17,12 +17,12 @@ int timestep = 60;  // in expedition-minutes per real-seconds
 int counter;
 
 void setup() {
-  size(800,600);
+  size(1400,800);
   colorMode(HSB);
   background(255);
   smooth();
   frameRate(30);
-  font = createFont("Anivers", 24);
+  font = createFont("Consolas", 24);
   textFont(font);
   textAlign(LEFT, TOP);
   features = new ArrayList<Feature>();
@@ -126,10 +126,10 @@ void draw() {
       PVector endS = convert(steve.get(i).coords);
       stroke(0, 255, endS.z, 128);
       line(startS.x, startS.y, endS.x, endS.y);
-      if (steve.get(i).time > lastTime) {
-        lastTime = steve.get(i).time;
-        lastTimeIndex = i;
-      }
+//      if (steve.get(i).time > lastTime) {
+//        lastTime = steve.get(i).time;
+//        lastTimeIndex = i;
+//      }
     }
   }
   for (int i=1; i < john.size()-1; i++) {  //counter < john.size()) {
@@ -151,9 +151,31 @@ void draw() {
   
   fill(0);
   stroke(0);
-  text("Time: " + steve.get(lastTimeIndex).timeString, 10, 10);
-  
+//  text("Time: " + steve.get(lastTimeIndex).timeString, 10, 10);
 
+  // hard-coded 'start' time for display: Sept 8 10:00AM
+  int minPassed = (counter - 1378627200) / 60;  
+  int hrsPassed = floor(minPassed / 60);
+  int displayHr = (10 + hrsPassed) % 24;
+  int date = 8 + floor((10 + hrsPassed)/24);
+  String dateStr;
+  if (date < 10) {
+    dateStr = "Sept  " + date;
+  } else {
+    dateStr = "Sept " + date;
+  }
+  if (displayHr < 10) {
+    dateStr += "  " + displayHr;
+  } else {
+    dateStr += " " + displayHr;
+  }
+  if (minPassed%60 < 10) {
+    dateStr += ":0" + minPassed%60;
+  } else {
+    dateStr += ":" + minPassed%60;
+  }
+  
+  text(dateStr, 10, 10);
 }
 
 class Feature {
