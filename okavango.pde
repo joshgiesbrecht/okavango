@@ -11,7 +11,7 @@ PVector min;
 PVector max;
 float scale;
 int minT;
-//int maxT;
+int maxT;
 int timestep = 60;  // in expedition-minutes per real-seconds
 
 int counter;
@@ -64,7 +64,7 @@ void setup() {
   min = new PVector(c.x, c.y, c.z);
   max = new PVector(c.x, c.y, c.z);
   minT = features.get(0).time;
-//  maxT = features.get(0).time;
+  maxT = features.get(0).time;
 
   for (int i=0; i < features.size(); i++) {
     PVector j = features.get(i).coords;
@@ -89,13 +89,15 @@ void setup() {
     if (features.get(i).time < minT) {
       minT = features.get(i).time;
     }
-//    if (features.get(i).time > maxT) {
-//      maxT = features.get(i).time;
-//    }
+    if (features.get(i).time > maxT) {
+      maxT = features.get(i).time;
+    }
   }
   println(min.toString());
   println(max.toString());
   counter = minT;
+
+  println(minT + " to " + maxT);
 
   float xscale = width / (max.x - min.x);
   float yscale = height / (max.y - min.y);
@@ -108,12 +110,15 @@ void setup() {
 
 void draw() {
   background(255);
-  counter += (timestep * 60) / frameRate;
+//  counter += (timestep * 60) / frameRate;
+
+  counter = minT + (maxT - minT) * mouseX / width;
+  println(counter);
+
   strokeWeight(2);
   
-  fill(0);
-  stroke(0);
-  text("Time: " + counter, 10, 10);
+  int lastTime = 0;
+  int lastTimeIndex = 0;
   
   for (int i=1; i < steve.size()-1; i++) {  //counter < steve.size()) {
     if (steve.get(i).time < counter) {
@@ -121,6 +126,10 @@ void draw() {
       PVector endS = convert(steve.get(i).coords);
       stroke(0, 255, endS.z, 128);
       line(startS.x, startS.y, endS.x, endS.y);
+      if (steve.get(i).time > lastTime) {
+        lastTime = steve.get(i).time;
+        lastTimeIndex = i;
+      }
     }
   }
   for (int i=1; i < john.size()-1; i++) {  //counter < john.size()) {
@@ -140,12 +149,18 @@ void draw() {
     }
   }
   
+  fill(0);
+  stroke(0);
+  text("Time: " + steve.get(lastTimeIndex).timeString, 10, 10);
+  
+
 }
 
 class Feature {
   PVector coords;
   String person;
   int time;
+  String timeString;
   
   Feature(JSONObject f) {
     JSONArray c = f.getJSONObject("geometry").getJSONArray("coordinates");
@@ -154,6 +169,7 @@ class Feature {
     JSONObject p = f.getJSONObject("properties");
     person = p.getString("Person");
     time = p.getInt("t_utc");
+    timeString = p.getString("DateTime");
     
     //debug!
     int id = f.getInt("id");
